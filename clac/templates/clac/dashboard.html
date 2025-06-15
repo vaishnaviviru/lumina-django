@@ -1,0 +1,35 @@
+<!-- clac/templates/clac/dashboard.html -->
+{% extends 'base.html' %}
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Hello, {{ profile.user.username }}!</h2>
+  <p>
+    🪙 <strong>Coins:</strong> {{ profile.coins }}<br>
+    🎖️ <strong>Tier:</strong> {{ profile.tier }}
+  </p>
+
+  <hr>
+
+  <h4>My Showcases</h4>
+  <a href="{% url 'add_showcase' %}" class="btn btn-sm btn-primary mb-3">+ Add New Showcase</a>
+
+  {% if showcases %}
+    <ul class="list-group">
+      {% for s in showcases %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <a href="{% url 'showcase_detail' s.id %}">{{ s.title }}</a>
+          {% if s.approved %}
+            <span class="badge bg-success">Approved ({{ s.coins_award }} coins)</span>
+          {% else %}
+            <span class="badge bg-warning text-dark">Pending</span>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No showcases submitted yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,23 @@
+<h2>{{ profile.user.username }}</h2>
+
+{% if profile.tier == 'Explorer' %}
+  <span class="badge" style="background-color:#B0E6FF;">{{ profile.tier }}</span>
+{% elif profile.tier == 'Contributor' %}
+  <span class="badge" style="background-color:#A4F4C0;">{{ profile.tier }}</span>
+{% elif profile.tier == 'Innovator' %}
+  <span class="badge" style="background-color:#FFE680;">{{ profile.tier }}</span>
+{% elif profile.tier == 'Visionary' %}
+  <span class="badge" style="background-color:#C895FF;">{{ profile.tier }}</span>
+{% else %}
+  <span class="badge bg-secondary">{{ profile.tier }}</span>
+{% endif %}
+<p>Coins: {{ profile.coins }}</p>
+<h3>My Showcases</h3>
+<ul>
+  {% for showcase in showcases %}
+    <li>{{ showcase.title }}</li>
+  {% empty %}
+    <li>No showcases submitted.</li>
+  {% endfor %}
+</ul>
+

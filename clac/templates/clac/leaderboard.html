@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Leaderboard{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>🏆 Developer Leaderboard</h2>
+  <p>Top 10 developers sorted by coins. Ties resolved by earliest join date.</p>
+
+  <table class="table table-striped table-hover">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Username</th>
+        <th>Coins</th>
+        <th>Tier</th>
+        <th>Joined</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for profile in profiles %}
+      <tr>
+        <td>{{ forloop.counter }}</td>
+        <td>{{ profile.user.username }}</td>
+        <td>{{ profile.coins }}</td>
+        <td>
+          {% if profile.tier == 'Explorer' %}
+            <span class="badge" style="background-color:#B0E6FF;">Explorer</span>
+          {% elif profile.tier == 'Contributor' %}
+            <span class="badge" style="background-color:#A4F4C0;">Contributor</span>
+          {% elif profile.tier == 'Innovator' %}
+            <span class="badge" style="background-color:#FFE680;">Innovator</span>
+          {% elif profile.tier == 'Visionary' %}
+            <span class="badge" style="background-color:#C895FF;">Visionary</span>
+          {% else %}
+            <span class="badge bg-secondary">{{ profile.tier }}</span>
+          {% endif %}
+        </td>
+        <td>{{ profile.joined|date:"Y-m-d" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="5">No users found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
+
+
