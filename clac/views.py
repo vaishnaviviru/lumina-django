@@ -131,10 +131,18 @@ def approve_showcase(request, id):
 
 @staff_member_required
 def reject_showcase(request, id):
+    showcase = get_object_or_404(Showcase, id=id)
+
     if request.method == 'POST':
-        reason = request.POST.get('reason', '')
-        showcase = get_object_or_404(Showcase, id=id)
+        reason = request.POST.get('reason', '').strip()
+        if not reason:
+            messages.error(request, 'Rejection reason is required.')
+            pending = Showcase.objects.filter(approved=False)
+            return render(request, 'clac/admin_review.html', {
+                'pending': pending
+            })
+
         showcase.admin_note = reason
         showcase.save()
         messages.warning(request, f'Showcase rejected with reason: {reason}')
-    return redirect('review_queue')
+        return redirect('review_queue')
