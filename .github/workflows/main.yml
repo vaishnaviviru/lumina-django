@@ -28,5 +28,5 @@ jobs:
 
     - name: Check formatting
       run: |
-        ruff . --select E,F,I
+        ruff check --select E,F,I .
         black --check .
