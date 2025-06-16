@@ -128,4 +128,5 @@ import os
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+FORMS_URLFIELD_ASSUME_HTTPS = True
 
