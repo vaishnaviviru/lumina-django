@@ -4,10 +4,28 @@ from django.urls import reverse
 from clac.models import Profile, Showcase
 from django.utils import timezone
 from datetime import timedelta
-
-
-class ShowcaseApprovalTest(TestCase):
+class BaseShowcaseTest(TestCase):
     def setUp(self):
+        User.objects.all().delete()
+        Profile.objects.all().delete()
+
+        self.client = Client()
+        self.admin = User.objects.create_user(
+            username='admin', password='adminpass',
+            is_staff=True, is_superuser=True
+        )
+        self.dev = User.objects.create_user(
+            username='dev', password='devpass',
+            email='dev@paycorp.local'
+        )
+        self.profile = Profile.objects.get(user=self.dev)
+
+
+
+class ShowcaseApprovalTest(BaseShowcaseTest):
+    def setUp(self):
+        User.objects.all().delete()
+        Profile.objects.all().delete()
         self.client = Client()
 
         self.admin = User.objects.create_user(
@@ -55,7 +73,7 @@ class ShowcaseApprovalTest(TestCase):
         self.assertEqual(self.showcase.coins_award, 200)
         self.assertEqual(self.profile.coins, 200)
         self.assertEqual(self.profile.tier, 'Contributor')
-class ShowcaseRejectionTest(TestCase):
+class ShowcaseRejectionTest(BaseShowcaseTest):
     def setUp(self):
         self.client = Client()
 
@@ -93,7 +111,7 @@ class ShowcaseRejectionTest(TestCase):
         self.assertFalse(self.showcase.approved)
         self.assertEqual(self.showcase.admin_note, 'Inappropriate content')
         self.assertEqual(self.profile.coins, 0)
-class LeaderboardTest(TestCase):
+class LeaderboardTest(BaseShowcaseTest):
     def setUp(self):
         self.client = Client()
 
@@ -127,7 +145,7 @@ class LeaderboardTest(TestCase):
         actual_order = [p.user.username for p in profiles]
 
         self.assertEqual(actual_order, expected_order)
-class ShowcaseMarkdownRenderingTest(TestCase):
+class ShowcaseMarkdownRenderingTest(BaseShowcaseTest):
     def setUp(self):
         self.client = Client()
         self.user = User.objects.create_user(username='dev', password='pass')
@@ -151,7 +169,7 @@ class ShowcaseMarkdownRenderingTest(TestCase):
         # Check if markdown was rendered
         self.assertIn("<strong>Bold Text</strong>", html)
         self.assertIn("<h1>Heading 1</h1>", html)
-class ProfileViewTest(TestCase):
+class ProfileViewTest(BaseShowcaseTest):
     def setUp(self):
         self.client = Client()
         self.user = User.objects.create_user(username='vaish', password='testpass')
@@ -188,7 +206,7 @@ class ProfileViewTest(TestCase):
         self.assertIn('Contributor', html)  # tier from coins
         self.assertIn('Showcase One', html)
         self.assertIn('Showcase Two', html)
-class ShowcaseFormTest(TestCase):
+class ShowcaseFormTest(BaseShowcaseTest):
     def setUp(self):
         self.user = User.objects.create_user(username='dev', password='devpass')
         self.profile = Profile.objects.get(user=self.user)
@@ -238,3 +256,75 @@ class ShowcaseFormTest(TestCase):
         response = self.client.post(url, data)
         form = response.context['form']
         self.assertFormError(form, 'body_md', 'Body must be at least 5 words long.')
+from clac.forms import RegisterForm
+
+class RegisterFormTest(BaseShowcaseTest):
+    def test_valid_registration(self):
+        form = RegisterForm({
+            'username': 'tester',
+            'email': 'tester@paycorp.local',
+            'password': 'pass1234',
+            'confirm_password': 'pass1234'
+        })
+
+        self.assertTrue(form.is_valid())
+
+       
+
+    def test_password_mismatch(self):
+        form = RegisterForm(data={
+            'username': 'user2',
+            'email': 'user2@example.com',
+            'password1': 'pass123',
+            'password2': 'different',
+        })
+        self.assertFalse(form.is_valid())
+        self.assertIn('confirm_password', form.errors)
+class TierAssignmentTest(BaseShowcaseTest):
+    def test_tier_logic(self):
+        user = User.objects.create_user(username='tester')
+        profile = Profile.objects.get(user=user)
+
+        profile.coins = 0
+        profile.update_tier()
+        self.assertEqual(profile.tier, 'Explorer')
+
+        profile.coins = 100
+        profile.update_tier()
+        self.assertEqual(profile.tier, 'Contributor')
+
+        profile.coins = 300
+        profile.update_tier()
+        self.assertEqual(profile.tier, 'Innovator')
+
+        profile.coins = 700
+        profile.update_tier()
+        self.assertEqual(profile.tier, 'Visionary')
+
+class ModerationAccessTest(BaseShowcaseTest):
+    def setUp(self):
+        self.client = Client()
+        self.dev = User.objects.create_user(username='dev', password='devpass')
+
+    def test_non_admin_cannot_access_moderation(self):
+        self.client.login(username='dev', password='devpass')
+        response = self.client.get(reverse('moderation_dashboard'))
+        self.assertEqual(response.status_code, 403)  # or 302 redirect to login
+class RankingPageTest(TestCase):
+    def test_ranking_url_loads(self):
+        response = self.client.get(reverse('ranking'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'ranking.html')  # adjust if needed
+class ShowcaseRejectionEdgeCaseTest(TestCase):
+    def setUp(self):
+        self.admin = User.objects.create_user(username='admin', password='adminpass', is_superuser=True)
+        Profile.objects.filter(user__username='dev').delete()
+        User.objects.filter(username='dev').delete()
+        self.profile = Profile.objects.create(user=User.objects.create_user(username='dev'))
+        self.showcase = Showcase.objects.create(owner=self.profile, title='Unapproved', body_md='...', approved=False)
+        self.client.login(username='admin', password='adminpass')
+
+    def test_reject_without_reason(self):
+        response = self.client.post(reverse('reject_showcase', args=[self.showcase.id]), {})
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "This field is required.")  # assuming form validation

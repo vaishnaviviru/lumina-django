@@ -22,8 +22,6 @@ class RegisterForm(forms.ModelForm):
         if password and confirm and password != confirm:
             self.add_error('confirm_password', "Passwords do not match")
         return cleaned_data
-    # clac/forms.py
-
 from django import forms
 from .models import Showcase
 
@@ -31,20 +29,10 @@ class ShowcaseForm(forms.ModelForm):
     class Meta:
         model = Showcase
         fields = ['title', 'body_md', 'link', 'screenshot']
-        from django import forms
-from .models import Showcase
-
-class ShowcaseForm(forms.ModelForm):
-    class Meta:
-        model = Showcase
-        fields = ['title', 'body_md']
 
     def clean_body_md(self):
         body = self.cleaned_data['body_md']
         word_count = len(body.strip().split())
-
         if word_count < 5:
             raise forms.ValidationError("Body must be at least 5 words long.")
         return body
-
-  # ✅ MUST return this
