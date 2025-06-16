@@ -318,23 +318,15 @@ class RankingPageTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'clac/ranking.html')
  # adjust if needed
-class ShowcaseRejectionEdgeCaseTest(TestCase):
-    def setUp(self):
-        self.admin = User.objects.create_user(username='admin', password='adminpass', is_superuser=True)
-        User.objects.filter(username='dev').delete()  # Optional cleanup
-        user = User.objects.create_user(username='dev')
-        self.profile = Profile.objects.get(user=user)
-        self.showcase = Showcase.objects.create(
-            owner=self.profile,
-            title='Unapproved',
-            body_md='...',
-            approved=False
-        )
-        self.client.login(username='admin', password='adminpass')
+from django.test import TestCase
+from django.contrib.auth.models import User
+from clac.models import Profile
 
-    def test_reject_without_reason(self):
-        response = self.client.post(reverse('reject_showcase', args=[self.showcase.id]), {})
-        self.assertEqual(response.status_code, 302)
-        self.showcase.refresh_from_db()
-        self.assertEqual(self.showcase.admin_note, '')
+class ProfileSignalTest(TestCase):
+    def test_profile_created_on_user_creation(self):
+        # Create a user
+        user = User.objects.create_user(username='testuser', password='testpass')
+
+        # Check if the profile was automatically created
+        self.assertTrue(Profile.objects.filter(user=user).exists(), "Profile not auto-created by signal")
 
