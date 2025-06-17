@@ -1,12 +1,7 @@
-from django.contrib.auth.models import User
-from django.db.models.signals import post_save
-from django.dispatch import receiver
+from django.contrib import admin
+from django.urls import path, include
 
-from clac.models import Profile
-
-
-@receiver(post_save, sender=User)
-def create_user_profile(sender, 
-                        instance, created, **kwargs):
-    if created:
-        Profile.objects.create(user=instance)
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('clac.urls')),  # ✅ include a URL *list*, not a module
+]
