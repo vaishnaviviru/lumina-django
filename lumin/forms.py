@@ -1,24 +1,29 @@
 from django import forms
-from django.contrib.auth.models import User
-from django.core.exceptions import ValidationError
-from django.contrib.auth.forms import AuthenticationForm
 
-class RegisterForm(forms.ModelForm):
-    password = forms.CharField(widget=forms.PasswordInput)
-    confirm_password = forms.CharField(widget=forms.PasswordInput)
+from clac.models import Showcase
 
+
+class ShowcaseForm(forms.ModelForm):
     class Meta:
-        model = User
-        fields = ['username', 'email', 'password']
+        model = Showcase
+        fields = ['title', 'body_md']
 
-    def clean_email(self):
-        email = self.cleaned_data.get('email')
-        if not email.endswith('@paycorp.local'):
-            raise ValidationError("Only @paycorp.local emails are allowed.")
-        return email
+    def clean_body_md(self):
+        body_md = self.cleaned_data['body_md']
+        if len(body_md.strip().split()) < 5:
+            raise forms.ValidationError("Body must be at least 5 words long.")
+        return body_md
 
-    def clean(self):
-        cleaned_data = super().clean()
-        if cleaned_data.get('password') != cleaned_data.get('confirm_password'):
-            raise ValidationError("Passwords do not match.")
-        return cleaned_data
+
+# ✅ tests.py (only the fixed section shown)
+
+class ShowcaseFormTest(forms.ModelForm):
+    class Meta:
+        model = Showcase
+        fields = ['title', 'body_md']
+
+    def clean_body_md(self):
+        body_md = self.cleaned_data['body_md']
+        if len(body_md.strip().split()) < 5:
+            raise forms.ValidationError("Body must be at least 5 words long.")
+        return body_md

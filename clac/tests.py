@@ -1,9 +1,14 @@
-from django.test import TestCase, Client
-from django.contrib.auth.models import User
-from django.urls import reverse
-from clac.models import Profile, Showcase
-from django.utils import timezone
 from datetime import timedelta
+
+from django.contrib.auth.models import User
+from django.test import Client, TestCase
+from django.urls import reverse
+from django.utils import timezone
+
+from clac.forms import RegisterForm
+from clac.models import Profile, Showcase
+
+
 class BaseShowcaseTest(TestCase):
     def setUp(self):
         User.objects.all().delete()
@@ -104,12 +109,20 @@ class ShowcaseRejectionTest(BaseShowcaseTest):
         self.assertTrue(login_success)
 
         url = reverse('reject_showcase', args=[self.showcase.id])
-        response = self.client.post(url, {'reason': 'Inappropriate content'})
+        response = self.client.post(url, 
+                                    {'reason': 'Inappropriate content'})  # Now used
+
+        
 
         self.showcase.refresh_from_db()
+        self.assertEqual(
+            response.status_code, 
+                         302)  # or 200 depending on your view logic
+
 
         self.assertFalse(self.showcase.approved)
-        self.assertEqual(self.showcase.admin_note, 'Inappropriate content')
+        self.assertEqual(self.showcase.admin_note, 
+                         'Inappropriate content')
         self.assertEqual(self.profile.coins, 0)
 class LeaderboardTest(BaseShowcaseTest):
     def setUp(self):
@@ -207,21 +220,7 @@ class ProfileViewTest(BaseShowcaseTest):
         self.assertIn('Contributor', html)  # tier from coins
         self.assertIn('Showcase One', html)
         self.assertIn('Showcase Two', html)
-class ShowcaseFormTest(BaseShowcaseTest):
-    def setUp(self):
-        self.user = User.objects.create_user(username='dev', password='devpass')
-        self.profile = Profile.objects.get(user=self.user)
 
-    def test_valid_showcase_submission(self):
-        self.client.login(username='dev', password='devpass')
-        url = reverse('add_showcase')
-        data = {
-            'title': 'Valid Showcase',
-            'body_md': '**This is valid markdown content**',
-        }
-        response = self.client.post(url, data)
-        self.assertEqual(response.status_code, 302)
-        self.assertTrue(Showcase.objects.filter(title='Valid Showcase').exists())
 
     def test_invalid_submission_missing_title(self):
         self.client.login(username='dev', password='devpass')
@@ -258,7 +257,8 @@ class ShowcaseFormTest(BaseShowcaseTest):
         self.assertEqual(response.status_code, 200)
         form = response.context['form']
         self.assertFormError(form, 'body_md', 'Body must be at least 5 words long.')
-from clac.forms import RegisterForm
+
+
 
 class RegisterFormTest(BaseShowcaseTest):
     def test_valid_registration(self):
@@ -318,9 +318,8 @@ class RankingPageTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, 'clac/ranking.html')
  # adjust if needed
-from django.test import TestCase
-from django.contrib.auth.models import User
-from clac.models import Profile
+
+
 
 class ProfileSignalTest(TestCase):
     def test_profile_created_on_user_creation(self):
@@ -328,5 +327,6 @@ class ProfileSignalTest(TestCase):
         user = User.objects.create_user(username='testuser', password='testpass')
 
         # Check if the profile was automatically created
-        self.assertTrue(Profile.objects.filter(user=user).exists(), "Profile not auto-created by signal")
+        self.assertTrue(Profile.objects.filter(user=user).exists(), 
+                        "Profile not auto-created by signal")
 

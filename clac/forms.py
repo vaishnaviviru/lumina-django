@@ -1,6 +1,9 @@
 from django import forms
 from django.contrib.auth.models import User
 
+from .models import Showcase
+
+
 class RegisterForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput)
     confirm_password = forms.CharField(widget=forms.PasswordInput)
@@ -22,8 +25,8 @@ class RegisterForm(forms.ModelForm):
         if password and confirm and password != confirm:
             self.add_error('confirm_password', "Passwords do not match")
         return cleaned_data
-from django import forms
-from .models import Showcase
+
+
 
 class ShowcaseForm(forms.ModelForm):
     class Meta:
