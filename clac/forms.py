@@ -28,8 +28,7 @@ class RegisterForm(forms.ModelForm):
 
 
 
-from django import forms
-from .models import Showcase
+
 
 class ShowcaseForm(forms.ModelForm):
     class Meta:

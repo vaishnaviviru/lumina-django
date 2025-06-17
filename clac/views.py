@@ -59,7 +59,8 @@ def showcase_detail(request, id):
         showcase.body_md,
         extras=["fenced-code-blocks", "code-friendly", "highlightjs-lang"]
     )
-    return render(request, 'clac/showcase_detail.html', {
+    return render(request, 
+                  'clac/showcase_detail.html', {
         'showcase': showcase,
         'body_html': body_html,
     })
@@ -77,17 +78,23 @@ def add_showcase(request):
             return redirect('dashboard')
         else:
             messages.error(request, 'Please correct the errors below.')
-            return render(request, 'clac/add_showcase.html', {'form': form})  # 👈 Add this
+            return render(request, 
+                          'clac/add_showcase.html',
+                            {'form': form})  # 👈 Add this
     else:
         form = ShowcaseForm()
-    return render(request, 'clac/add_showcase.html', {'form': form})
+    return render(request, 
+                  'clac/add_showcase.html',
+                    {'form': form})
 
 # -------------------------------
 # ✅ PUBLIC VIEWS
 # -------------------------------
 def leaderboard(request):
     profiles = Profile.objects.order_by('-coins', 'joined')[:10]
-    return render(request, 'clac/leaderboard.html', {'profiles': profiles})
+    return render(request, 
+                  'clac/leaderboard.html', 
+                  {'profiles': profiles})
 
 
 def ranking_view(request):
