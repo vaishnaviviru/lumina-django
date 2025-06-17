@@ -28,14 +28,25 @@ class RegisterForm(forms.ModelForm):
 
 
 
+from django import forms
+from .models import Showcase
+
 class ShowcaseForm(forms.ModelForm):
     class Meta:
         model = Showcase
-        fields = ['title', 'body_md', 'link', 'screenshot']
+        fields = ['title', 'body_md']  # ✅ Removed 'attachment'
+
+    def clean_title(self):
+        title = self.cleaned_data.get('title')
+        if not title:
+            raise forms.ValidationError("Title is required.")
+        return title
 
     def clean_body_md(self):
-        body = self.cleaned_data['body_md']
-        word_count = len(body.strip().split())
-        if word_count < 5:
-            raise forms.ValidationError("Body must be at least 5 words long.")
+        body = self.cleaned_data.get('body_md')
+        if not body:
+            raise forms.ValidationError("Body is required.")
+        if len(body) < 10:
+            raise forms.ValidationError("Body is too short.")
         return body
+

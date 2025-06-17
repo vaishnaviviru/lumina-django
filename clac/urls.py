@@ -3,6 +3,7 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+   
     # Auth views
     path('register/', 
          views.register, 
