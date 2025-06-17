@@ -77,10 +77,10 @@ def add_showcase(request):
             return redirect('dashboard')
         else:
             messages.error(request, 'Please correct the errors below.')
+            return render(request, 'clac/add_showcase.html', {'form': form})  # 👈 Add this
     else:
         form = ShowcaseForm()
     return render(request, 'clac/add_showcase.html', {'form': form})
-
 
 # -------------------------------
 # ✅ PUBLIC VIEWS

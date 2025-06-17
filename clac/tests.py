@@ -191,6 +191,8 @@ class ProfileViewTest(BaseShowcaseTest):
         self.profile.coins = 300
         self.profile.update_tier()
         self.profile.save()
+        self.dev_user = User.objects.create_user(username='dev', password='devpass')
+        self.dev_profile = Profile.objects.get(user=self.dev_user)
 
         # Create a few showcases
         Showcase.objects.create(
@@ -256,7 +258,7 @@ class ProfileViewTest(BaseShowcaseTest):
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, 200)
         form = response.context['form']
-        self.assertFormError(form, 'body_md', 'Body must be at least 5 words long.')
+        self.assertFormError(form, 'body_md', 'Body is too short.')
 
 
 
