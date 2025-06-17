@@ -1,8 +1,8 @@
 from django.apps import AppConfig
 
-
 class ClacConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
     name = 'clac'
+
     def ready(self):
-        pass
+        import clac.signals  # ✅ This is essential

@@ -23,7 +23,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'lumin',
-    'clac',
+    'clac.apps.ClacConfig',  
 ]
 
 MIDDLEWARE = [
