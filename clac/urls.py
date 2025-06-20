@@ -1,9 +1,15 @@
 from django.contrib.auth import views as auth_views
-from django.urls import path
+from django.urls import path,include
+from clac.views import home
 
 from . import views
 
 urlpatterns = [
+    path('', home, name='home'),
+    path("login/", auth_views.LoginView.as_view(template_name="clac/login.html"), name="login"),
+    # or use LoginView.as_view()
+
+
     # Auth views
     path("register/", views.register, name="register"),
     path("logout/", auth_views.LogoutView.as_view(next_page="login"), name="logout"),
@@ -17,6 +23,7 @@ urlpatterns = [
     # Moderator views
     path("moderation/", views.moderation_dashboard, name="moderation_dashboard"),
     path("moderation/review/", views.review_queue, name="review_queue"),
+     path("accounts/", include("django.contrib.auth.urls")),
     path(
         "moderation/review/<int:id>/approve/",
         views.approve_showcase,

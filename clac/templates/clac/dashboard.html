@@ -1,4 +1,3 @@
-<!-- clac/templates/clac/dashboard.html -->
 {% extends 'base.html' %}
 {% block title %}Dashboard{% endblock %}
 
@@ -9,6 +8,10 @@
     🪙 <strong>Coins:</strong> {{ profile.coins }}<br>
     🎖️ <strong>Tier:</strong> {{ profile.tier }}
   </p>
+
+  {% if user.is_superuser %}
+    <a href="{% url 'review_queue' %}" class="btn btn-warning mb-3">🔎 Go to Moderation Panel</a>
+  {% endif %}
 
   <hr>
 

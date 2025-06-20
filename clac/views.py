@@ -5,9 +5,12 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.timezone import now
+from django.shortcuts import render
 
 from .forms import RegisterForm, ShowcaseForm
 from .models import Profile, Showcase
+def home(request):
+    return render(request, 'clac/home.html')
 
 
 # -------------------------------
@@ -20,12 +23,16 @@ def register(request):
             user = form.save(commit=False)
             user.set_password(form.cleaned_data["password"])
             user.save()
-            Profile.objects.create(user=user)
+            if not hasattr(user, "profile"):
+                Profile.objects.create(user=user)
             login(request, user)
             messages.success(request, "Registration successful!")
             return redirect("dashboard")
+        else:
+            messages.error(request, "Registration failed. Please fix the errors below.")
     else:
         form = RegisterForm()
+
     return render(request, "register.html", {"form": form})
 
 
@@ -39,6 +46,7 @@ def dashboard(request):
     return render(
         request, "clac/dashboard.html", {"profile": profile, "showcases": showcases}
     )
+
 
 
 @login_required
@@ -77,6 +85,11 @@ def add_showcase(request):
     if request.method == "POST":
         form = ShowcaseForm(request.POST, request.FILES)
         if form.is_valid():
+            email = form.cleaned_data["email"]
+            if not email.endswith("@paycorp.local"):
+                form.add_error("email", "Only @paycorp.local emails are allowed.")
+                return render(request, "register.html", {"form": form})
+
             showcase = form.save(commit=False)
             showcase.owner = request.user.profile
             showcase.save()
