@@ -1,7 +1,7 @@
 import markdown2
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
-from django.contrib.auth import login
+from django.contrib.auth import login,logout
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils.timezone import now
@@ -10,7 +10,7 @@ from django.shortcuts import render
 from .forms import RegisterForm, ShowcaseForm
 from .models import Profile, Showcase
 def home(request):
-    return render(request, 'clac/home.html')
+    return render(request, 'home.html', {'force_show_login_register': True})
 
 
 # -------------------------------
@@ -33,7 +33,7 @@ def register(request):
     else:
         form = RegisterForm()
 
-    return render(request, "register.html", {"form": form})
+    return render(request, 'clac/register.html', {'form': form, 'hide_nav': True})
 
 
 # -------------------------------
@@ -166,3 +166,7 @@ def reject_showcase(request, id):
         showcase.save()
         messages.warning(request, f"Showcase rejected with reason: {reason}")
         return redirect("review_queue")
+    def login_user(request):
+        return render(request,'login.html',())
+    def logout_user(request):
+         return redirect('login')

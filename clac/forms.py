@@ -28,9 +28,10 @@ class RegisterForm(forms.ModelForm):
 
 
 class ShowcaseForm(forms.ModelForm):
+    email = forms.EmailField(required=True)
     class Meta:
         model = Showcase
-        fields = ["title", "body_md"]  # ✅ Removed 'attachment'
+        fields = ["title", "body_md", "link", "screenshot","email"    ]  # ✅ Removed 'attachment'
 
     def clean_title(self):
         title = self.cleaned_data.get("title")

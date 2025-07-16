@@ -102,5 +102,6 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # Force HTTPS assumption for forms.URLField
 FORMS_URLFIELD_ASSUME_HTTPS = True
 LOGIN_REDIRECT_URL = '/dashboard/'
-LOGOUT_REDIRECT_URL = '/login/'
+LOGOUT_REDIRECT_URL = 'login'
+
 

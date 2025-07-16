@@ -4,7 +4,12 @@
 <table class="table">
   <thead>
     <tr>
-      <th>ID</th><th>Title</th><th>Owner</th><th>Submitted</th><th>Action</th>
+      <th>ID</th>
+      <th>Title</th>
+      <th>Owner</th>
+      <th>Submitted</th>
+      <th>Screenshot</th>  <!-- ✅ add this -->
+      <th>Action</th>
     </tr>
   </thead>
   <tbody>
@@ -14,6 +19,13 @@
       <td>{{ s.title }}</td>
       <td>{{ s.owner.user.username }}</td>
       <td>{{ s.created_at|date:"Y-m-d" }}</td>
+      <td>
+        {% if s.screenshot %}
+          <img src="{{ s.screenshot.url }}" style="max-width: 100px; border-radius: 4px; box-shadow: 0 0 5px rgba(0,0,0,0.2);">
+        {% else %}
+          <span class="text-muted">No screenshot</span>
+        {% endif %}
+      </td>
       <td>
         <form method="post" action="{% url 'approve_showcase' s.id %}" style="display:inline-block;">
           {% csrf_token %}
@@ -28,7 +40,7 @@
       </td>
     </tr>
     {% empty %}
-    <tr><td colspan="5">No pending showcases.</td></tr>
+    <tr><td colspan="6">No pending showcases.</td></tr>
     {% endfor %}
   </tbody>
 </table>

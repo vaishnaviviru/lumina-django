@@ -1,6 +1,9 @@
 from django.contrib.auth import views as auth_views
 from django.urls import path,include
 from clac.views import home
+from django.conf import settings
+from django.conf.urls.static import static
+
 
 from . import views
 
@@ -12,7 +15,7 @@ urlpatterns = [
 
     # Auth views
     path("register/", views.register, name="register"),
-    path("logout/", auth_views.LogoutView.as_view(next_page="login"), name="logout"),
+    path("logout/", auth_views.LogoutView.as_view(template_name='logout.html'), name="logout"),
     # Developer views
     path("dashboard/", views.dashboard, name="dashboard"),
     path("profile/", views.profile_view, name="profile"),
@@ -35,3 +38,5 @@ urlpatterns = [
         name="reject_showcase",
     ),
 ]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

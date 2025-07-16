@@ -1,8 +1,10 @@
 {% extends 'base.html' %}
 
+{% block title %}Welcome to Lumina{% endblock %}
+
 {% block content %}
-<h1>Welcome to Lumina</h1>
-<a href="{% url 'login' %}">Login</a>
-<p><a href="{% url 'register' %}">Register</a> to get started.
-</p>
+  <h1>Welcome to Lumina!</h1>
+  <p>This is the first page, and you should only see Login and Register in the navbar above.</p>
 {% endblock %}
+
+

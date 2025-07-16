@@ -40,3 +40,4 @@ class Showcase(models.Model):
     admin_note = models.CharField(max_length=255, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     approved_at = models.DateTimeField(null=True, blank=True)
+    screenshot = models.ImageField(upload_to='screens/', blank=True, null=True)
